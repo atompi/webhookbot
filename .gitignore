@@ -1,0 +1,4 @@
+.vscode/
+examples/alert_feishu
+examples/alert_feishu.yaml
+*.log

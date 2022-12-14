@@ -1,0 +1,16 @@
+---
+
+version: '3.9'
+
+services:
+  alert-feishu:
+    image: hub.gitee.com/autom-studio/alert-feishu:v1.0.0
+    restart: unless-stopped
+    volumes:
+      - ./conf/alert_feishu.yaml:/app/alert_feishu.yaml
+      - ./conf/tmpl:/app/tmpl
+
+networks:
+  default:
+    external: true
+    name: nginx_proxy

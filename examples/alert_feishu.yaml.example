@@ -1,0 +1,14 @@
+---
+
+main:
+  ginMode: release
+  listenAddress: :8080
+  webhookPath: /feishu
+  log:
+    path: "./alert_feishu.log"
+    level: "INFO"
+
+feishu:
+  webhookUrl: "https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+  alertMsgTmpl: "./tmpl/alert.json.tmpl"
+  resolvedMsgTmpl: "./tmpl/resolved.json.tmpl"
