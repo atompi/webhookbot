@@ -1,5 +1,7 @@
 FROM golang:1.19.4 as builder
 
+ENV GOPROXY="https://proxy.golang.com.cn,direct"
+
 WORKDIR /mysrc
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -o alert-feishu
