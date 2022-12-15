@@ -87,7 +87,7 @@ func Handler(c *Context) {
 	req.Header.Add("content-type", "application/json")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil || res.StatusCode >= http.StatusBadRequest {
-		zap.L().Sugar().Errorf("failed to sent request: %v, %v", err, res.StatusCode)
+		zap.L().Sugar().Errorf("failed to sent request: %v", err)
 		c.GinContext.JSON(http.StatusInternalServerError, gin.H{"error": "failed to sent request"})
 		return
 	}

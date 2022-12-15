@@ -10,6 +10,7 @@ FROM scratch
 
 WORKDIR /app
 COPY --from=builder /mysrc/alert-feishu /app/alert-feishu
+ADD https://curl.se/ca/cacert.pem /etc/ssl/certs/
 
 EXPOSE 8080
 
