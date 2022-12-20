@@ -4,11 +4,11 @@ version: '3.9'
 
 services:
   alert-feishu:
-    image: hub.gitee.com/autom-studio/alert-feishu:v1.0.0
+    image: hub.gitee.com/autom-studio/alert-feishu:v1.0.2
     restart: unless-stopped
     volumes:
-      - ./conf/alert_feishu.yaml:/app/alert_feishu.yaml
-      - ./conf/tmpl:/app/tmpl
+      - ./alert_feishu.yaml:/app/alert_feishu.yaml
+      - ./tmpl:/app/tmpl
 
 networks:
   default:

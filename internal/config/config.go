@@ -1,6 +1,6 @@
 package config
 
-var Version string = "v1.0.0"
+var Version string = "v1.0.2"
 
 type MainConfigStruct struct {
 	ListenAddress string          `yaml:"listenAddress"`
@@ -35,9 +35,10 @@ type AlertLabelsStruct struct {
 }
 
 type AlertAnnotationsStruct struct {
-	Summary     any `json:"summary"`
-	Description any `json:"description"`
-	RunbookUrl  any `json:"runbook_url"`
+	Summary            any `json:"summary"`
+	Description        any `json:"description"`
+	RunbookUrl         any `json:"runbook_url"`
+	GrafanaValueString any `json:"__value_string__"`
 }
 
 type AlertStruct struct {

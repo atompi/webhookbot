@@ -176,7 +176,7 @@
           {
             "is_short": false,
             "text": {
-              "content": "**📋 详情：**\n{{ $alert.Annotations.Description }}",
+              "content": "**📋 详情：**\n{{or $alert.Annotations.Description $alert.Annotations.GrafanaValueString}}",
               "tag": "lark_md"
             }
           }
