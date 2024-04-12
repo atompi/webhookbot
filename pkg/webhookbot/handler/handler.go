@@ -7,13 +7,14 @@ import (
 	"net/http"
 	"strings"
 
-	"gitee.com/autom-studio/alert-feishu/internal/config"
+	"github.com/atompi/webhookbot/pkg/options"
+	"github.com/atompi/webhookbot/pkg/util"
 	"github.com/gin-gonic/gin"
 
 	"go.uber.org/zap"
 )
 
-func genPostJsonData(structData config.AlertsGroupStruct, tmplFilePath string) (jsonData string, err error) {
+func genPostJsonData(structData util.AlertsGroupStruct, tmplFilePath string) (jsonData string, err error) {
 	t, err := template.ParseFiles(tmplFilePath)
 	if err != nil {
 		zap.L().Sugar().Errorf("parse %s failed: %v", tmplFilePath, err)
@@ -31,16 +32,16 @@ func genPostJsonData(structData config.AlertsGroupStruct, tmplFilePath string) (
 
 type Context struct {
 	GinContext *gin.Context
-	Config     config.RootConfigStruct
+	Options    options.CoreOptions
 }
 
 type HandlerFunc func(*Context)
 
-func NewHandler(handler HandlerFunc, config config.RootConfigStruct) gin.HandlerFunc {
+func NewHandler(handler HandlerFunc, opts options.CoreOptions) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		context := new(Context)
 		context.GinContext = c
-		context.Config = config
+		context.Options = opts
 		handler(context)
 	}
 }
@@ -54,7 +55,7 @@ func Handler(c *Context) {
 		return
 	}
 
-	var alertGroupData config.AlertsGroupStruct
+	var alertGroupData util.AlertsGroupStruct
 	bodyDataByte, err := json.Marshal(bodyData)
 	if err != nil {
 		bodyDataByte = nil
@@ -64,7 +65,7 @@ func Handler(c *Context) {
 	}
 	err = json.Unmarshal(bodyDataByte, &alertGroupData)
 	if err != nil {
-		alertGroupData = config.AlertsGroupStruct{}
+		alertGroupData = util.AlertsGroupStruct{}
 		zap.L().Sugar().Errorf("failed to unmarshal body data: %v", err)
 		c.GinContext.JSON(http.StatusBadRequest, gin.H{"error": "incorrect data format"})
 		return
@@ -72,9 +73,9 @@ func Handler(c *Context) {
 
 	var postJsonData string
 	if alertGroupData.Status == "resolved" {
-		postJsonData, err = genPostJsonData(alertGroupData, c.Config.Feishu.ResolvedMsgTmpl)
+		postJsonData, err = genPostJsonData(alertGroupData, c.Options.Bots.ResolvedMsgTmpl)
 	} else {
-		postJsonData, err = genPostJsonData(alertGroupData, c.Config.Feishu.AlertMsgTmpl)
+		postJsonData, err = genPostJsonData(alertGroupData, c.Options.Bots.AlertMsgTmpl)
 	}
 	if err != nil {
 		zap.L().Sugar().Errorf("failed to generate json data: %v", err)
@@ -83,7 +84,7 @@ func Handler(c *Context) {
 	}
 
 	postData := strings.NewReader(postJsonData)
-	req, _ := http.NewRequest("POST", c.Config.Feishu.WebhookUrl, postData)
+	req, _ := http.NewRequest("POST", c.Options.Bots.WebhookUrl, postData)
 	req.Header.Add("content-type", "application/json")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil || res.StatusCode >= http.StatusBadRequest {
@@ -95,4 +96,11 @@ func Handler(c *Context) {
 	defer res.Body.Close()
 
 	c.GinContext.JSON(http.StatusOK, gin.H{"status": "sent success"})
+}
+
+func RootHandler(opts options.Options) gin.HandlerFunc {
+	botMap := make(map[string]string)
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"bot_map": botMap})
+	}
 }

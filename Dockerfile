@@ -1,18 +1,18 @@
-FROM golang:1.19.4 as builder
+FROM golang:1.22.1 as builder
 
 ENV GOPROXY="https://proxy.golang.com.cn,direct"
 
 WORKDIR /mysrc
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -o alert-feishu
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-w -s" -o webhookbot
 
 FROM scratch
 
 WORKDIR /app
-COPY --from=builder /mysrc/alert-feishu /app/alert-feishu
+COPY --from=builder /mysrc/webhookbot /app/webhookbot
 ADD https://curl.se/ca/cacert.pem /etc/ssl/certs/
 
 EXPOSE 8080
 
-ENTRYPOINT ["/app/alert-feishu"]
-CMD ["--config", "/app/alert_feishu.yaml"]
+ENTRYPOINT ["/app/webhookbot"]
+CMD ["--config", "/app/webhookbot.yaml"]

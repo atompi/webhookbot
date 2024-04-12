@@ -20,9 +20,9 @@ import (
 	"os"
 	"time"
 
-	"gitee.com/autom-studio/alert-feishu/api/webhook/router"
-	"gitee.com/autom-studio/alert-feishu/internal/config"
-	logkit "gitee.com/autom-studio/go-kits/log"
+	logkit "github.com/atompi/go-kits/log"
+	"github.com/atompi/webhookbot/pkg/options"
+	"github.com/atompi/webhookbot/pkg/webhookbot/router"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
@@ -34,33 +34,32 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "alert-feishu",
-	Short: "Sent alert message to Feishu",
-	Long:  `Integration of Feishu-robot for Prometheus Alertmanager via webhook.`,
+	Use:     "webhookbot",
+	Short:   "Sent alert message to Feishu",
+	Long:    `Integration of Feishu-robot for Prometheus Alertmanager via webhook.`,
+	Version: options.Version,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-		var rootConfig config.RootConfigStruct
-		err := viper.Unmarshal(&rootConfig)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Unmarshal config failed: ", err)
-			os.Exit(1)
-		}
+		opts := options.NewOptions()
 
-		logPath := rootConfig.Main.Log.Path
-		logLevel := rootConfig.Main.Log.Level
+		logPath := opts.Core.Log.Path
+		logLevel := opts.Core.Log.Level
 		logger := logkit.InitLogger(logPath, logLevel)
 		defer logger.Sync()
 		undo := zap.ReplaceGlobals(logger)
 		defer undo()
 
-		listenAddr := viper.GetString("main.listenAddress")
-		gin.SetMode(viper.GetString("main.ginMode"))
+		gin.SetMode(opts.Core.Mode)
+
 		r := gin.New()
+
 		r.Use(ginzap.Ginzap(logger, time.RFC3339, true))
 		r.Use(ginzap.RecoveryWithZap(logger, true))
-		router.Register(r, rootConfig)
-		r.Run(listenAddr)
+
+		router.Register(r, opts)
+
+		r.Run(opts.Core.Listen)
 	},
 }
 
@@ -68,9 +67,7 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
-	}
+	cobra.CheckErr(err)
 }
 
 func init() {
@@ -80,7 +77,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is ./alert_feishu.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is ./webhookbot.yaml)")
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -89,10 +86,10 @@ func initConfig() {
 		// Use config file from the flag.
 		viper.SetConfigFile(cfgFile)
 	} else {
-		// Search config in home directory with name ".alert-feishu" (without extension).
+		// Search config in current directory with name "webhookbot" (without extension).
 		viper.AddConfigPath("./")
 		viper.SetConfigType("yaml")
-		viper.SetConfigName("alert_feishu")
+		viper.SetConfigName("webhookbot")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
@@ -101,6 +98,6 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	} else {
-		fmt.Fprintln(os.Stderr, "Init config file failed:", err)
+		cobra.CheckErr(err)
 	}
 }

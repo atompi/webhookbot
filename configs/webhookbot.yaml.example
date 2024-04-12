@@ -1,0 +1,18 @@
+---
+
+core:
+  mode: release
+  listen: :8080
+  metrics:
+    enable: true
+    path: /metrics
+  log:
+    path: "./logs/webhookbot.log"
+    level: "INFO"
+
+bots:
+  - path: /atompi
+    webhook: "https://open.feishu.cn/open-apis/bot/v2/hook/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    template:
+      alerting: "./tmpl/alerting.json.tmpl"
+      resolved: "./tmpl/resolved.json.tmpl"

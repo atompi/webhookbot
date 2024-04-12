@@ -1,6 +1,6 @@
-# ALERT-FEISHU
+# webhookbot
 
-Integration of Feishu-robot for Prometheus Alertmanager via webhook.
+Integration of Lark-robot for Prometheus Alertmanager via webhook.
 
 ## webhook raw json
 
@@ -121,13 +121,13 @@ Integration of Feishu-robot for Prometheus Alertmanager via webhook.
 ## Build
 
 ```
-docker build -t hub.gitee.com/autom-studio/alert-feishu:v1.0.0 .
+docker build -t hub.github.com/atompi/webhookbot:v1.1.0 .
 ```
 
 ## Deploy
 
 ```
 mkdir -p conf/tmpl
-# prepare conf/alert_feishu.yaml and conf/tmpl/ (copy from examples/tmpl) folder
+# prepare conf/webhookbot.yaml and conf/tmpl/ (copy from examples/tmpl) folder
 docker-compose up -d
 ```

@@ -3,11 +3,11 @@
 version: '3.9'
 
 services:
-  alert-feishu:
-    image: hub.gitee.com/autom-studio/alert-feishu:v1.0.2
+  webhookbot:
+    image: atompi/webhookbot:v1.1.0
     restart: unless-stopped
     volumes:
-      - ./alert_feishu.yaml:/app/alert_feishu.yaml
+      - ./webhookbot.yaml:/app/webhookbot.yaml
       - ./tmpl:/app/tmpl
 
 networks:

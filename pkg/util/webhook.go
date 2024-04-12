@@ -1,29 +1,4 @@
-package config
-
-var Version string = "v1.0.2"
-
-type MainConfigStruct struct {
-	ListenAddress string          `yaml:"listenAddress"`
-	GinMode       string          `yaml:"ginMode"`
-	WebhookPath   string          `yaml:"webhookPath"`
-	Log           LogConfigStruct `yaml:"log"`
-}
-
-type FeishuConfigStruct struct {
-	WebhookUrl      string `yaml:"webhookUrl"`
-	AlertMsgTmpl    string `yaml:"alertMsgTmpl"`
-	ResolvedMsgTmpl string `yaml:"resolvedMsgTmpl"`
-}
-
-type LogConfigStruct struct {
-	Path  string `yaml:"path"`
-	Level string `yaml:"level"`
-}
-
-type RootConfigStruct struct {
-	Main   MainConfigStruct   `yaml:"main"`
-	Feishu FeishuConfigStruct `yaml:"feishu"`
-}
+package util
 
 type AlertLabelsStruct struct {
 	Alertname any `json:"alertname"`
