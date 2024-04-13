@@ -22,7 +22,7 @@ import (
 
 	logkit "github.com/atompi/go-kits/log"
 	"github.com/atompi/webhookbot/pkg/options"
-	"github.com/atompi/webhookbot/pkg/webhookbot/router"
+	"github.com/atompi/webhookbot/pkg/router"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"

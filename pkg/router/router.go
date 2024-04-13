@@ -2,8 +2,8 @@ package router
 
 import (
 	metricshandler "github.com/atompi/go-kits/metrics/handler"
+	"github.com/atompi/webhookbot/pkg/handler"
 	"github.com/atompi/webhookbot/pkg/options"
-	"github.com/atompi/webhookbot/pkg/webhookbot/handler"
 	"github.com/gin-gonic/gin"
 )
 
