@@ -1,12 +1,13 @@
 package handler
 
 import (
+	"bytes"
 	"encoding/json"
+	"html/template"
+	"io"
 	"net/http"
-	"strings"
 
 	"github.com/atompi/webhookbot/pkg/options"
-	"github.com/atompi/webhookbot/pkg/util"
 	"github.com/gin-gonic/gin"
 
 	"go.uber.org/zap"
@@ -29,49 +30,48 @@ func NewBotHandler(handler HandlerFunc, opts options.BotOptions) gin.HandlerFunc
 }
 
 func BotHandler(c *Context) {
-	bodyData := make(map[string]any)
-	err := c.GinContext.BindJSON(&bodyData)
+	bodyData, err := io.ReadAll(c.GinContext.Request.Body)
 	if err != nil {
 		zap.L().Sugar().Errorf("failed to read request data: %v", err)
-		c.GinContext.JSON(http.StatusBadRequest, gin.H{"error": "incorrect data format"})
+		c.GinContext.JSON(http.StatusBadRequest, gin.H{"error": "read body failed"})
 		return
 	}
 
-	var alertGroupData util.AlertsGroupStruct
-	bodyDataByte, err := json.Marshal(bodyData)
+	m := map[string]interface{}{}
+	err = json.Unmarshal(bodyData, &m)
 	if err != nil {
-		bodyDataByte = nil
-		zap.L().Sugar().Errorf("failed to marshal body data: %v", err)
-		c.GinContext.JSON(http.StatusBadRequest, gin.H{"error": "incorrect data format"})
-		return
-	}
-	err = json.Unmarshal(bodyDataByte, &alertGroupData)
-	if err != nil {
-		alertGroupData = util.AlertsGroupStruct{}
 		zap.L().Sugar().Errorf("failed to unmarshal body data: %v", err)
 		c.GinContext.JSON(http.StatusBadRequest, gin.H{"error": "incorrect data format"})
 		return
 	}
 
-	var postJsonData string
-	if alertGroupData.Status == "resolved" {
-		postJsonData, err = util.GenPostJsonData(alertGroupData, c.Options.Template.Resolved)
+	var tmplFilePath string
+	if m["status"] == "resolved" {
+		tmplFilePath = c.Options.Template.Resolved
 	} else {
-		postJsonData, err = util.GenPostJsonData(alertGroupData, c.Options.Template.Alerting)
+		tmplFilePath = c.Options.Template.Alerting
 	}
+	t, err := template.ParseFiles(tmplFilePath)
 	if err != nil {
-		zap.L().Sugar().Errorf("failed to generate json data: %v", err)
-		c.GinContext.JSON(http.StatusBadRequest, gin.H{"error": "incorrect data format"})
+		zap.L().Sugar().Errorf("failed to parse template: %v", err)
+		c.GinContext.JSON(http.StatusBadRequest, gin.H{"error": "parse template failed"})
 		return
 	}
 
-	postData := strings.NewReader(postJsonData)
+	postData := new(bytes.Buffer)
+	err = t.Execute(postData, m)
+	if err != nil {
+		zap.L().Sugar().Errorf("failed to generate post body: %v", err)
+		c.GinContext.JSON(http.StatusBadRequest, gin.H{"error": "generate post body failed"})
+		return
+	}
+
 	req, _ := http.NewRequest("POST", c.Options.Webhook, postData)
 	req.Header.Add("content-type", "application/json")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil || res.StatusCode >= http.StatusBadRequest {
-		zap.L().Sugar().Errorf("failed to sent request: %v", err)
-		c.GinContext.JSON(http.StatusInternalServerError, gin.H{"error": "failed to sent request"})
+		zap.L().Sugar().Errorf("failed to send request: %v", err)
+		c.GinContext.JSON(http.StatusInternalServerError, gin.H{"error": "send request failed"})
 		return
 	}
 

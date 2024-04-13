@@ -10,14 +10,14 @@
           {
             "is_short": true,
             "text": {
-              "content": "**⚓ Namespace: **\n{{.CommonLabels.Namespace}}",
+              "content": "**⚓ Namespace: **\n{{.commonLabels.namespace}}",
               "tag": "lark_md"
             }
           },
           {
             "is_short": true,
             "text": {
-              "content": "**🚨 当前状态：**\n{{.Status}}",
+              "content": "**🚨 当前状态：**\n{{.status}}",
               "tag": "lark_md"
             }
           }
@@ -27,7 +27,7 @@
       {
         "tag": "hr"
       },
-    {{- range $alert := .Alerts }}
+    {{- range $alert := .alerts }}
       {
         "tag": "hr"
       },
@@ -36,14 +36,14 @@
           {
             "is_short": true,
             "text": {
-              "content": "**🚩 告警类型：**\n{{ $alert.Labels.Alertname }}",
+              "content": "**🚩 告警类型：**\n{{ $alert.labels.alertname }}",
               "tag": "lark_md"
             }
           },
           {
             "is_short": true,
             "text": {
-              "content": "**🚦 告警级别：**\n{{ $alert.Labels.Severity }}",
+              "content": "**🚦 告警级别：**\n{{ $alert.labels.severity }}",
               "tag": "lark_md"
             }
           },
@@ -57,14 +57,14 @@
           {
             "is_short": true,
             "text": {
-              "content": "**🚨 当前状态：**\n{{ $alert.Status }}",
+              "content": "**🚨 当前状态：**\n{{ $alert.status }}",
               "tag": "lark_md"
             }
           },
           {
             "is_short": true,
             "text": {
-              "content": "**🔢 事件 ID：**\n{{ $alert.Fingerprint }}",
+              "content": "**🔢 事件 ID：**\n{{ $alert.fingerprint }}",
               "tag": "lark_md"
             }
           },
@@ -78,14 +78,14 @@
           {
             "is_short": true,
             "text": {
-              "content": "**🕐 开始时间：**\n{{ $alert.StartsAt }}",
+              "content": "**🕐 开始时间：**\n{{ $alert.startsAt }}",
               "tag": "lark_md"
             }
           },
           {
             "is_short": true,
             "text": {
-              "content": "**🕐 结束时间：**\n{{ $alert.EndsAt }}",
+              "content": "**🕐 结束时间：**\n{{ $alert.endsAt }}",
               "tag": "lark_md"
             }
           },
@@ -99,14 +99,14 @@
           {
             "is_short": true,
             "text": {
-              "content": "**🎯 监控端点：**\n{{or $alert.Labels.Endpoint "None"}}",
+              "content": "**🎯 监控端点：**\n{{or $alert.labels.endpoint "None"}}",
               "tag": "lark_md"
             }
           },
           {
             "is_short": true,
             "text": {
-              "content": "**🚀 实例：**\n{{or $alert.Labels.Instance "None"}}",
+              "content": "**🚀 实例：**\n{{or $alert.labels.instance "None"}}",
               "tag": "lark_md"
             }
           },
@@ -120,14 +120,14 @@
           {
             "is_short": true,
             "text": {
-              "content": "**📦 Pod:**\n{{or $alert.Labels.Pod "None"}}",
+              "content": "**📦 Pod:**\n{{or $alert.labels.pod "None"}}",
               "tag": "lark_md"
             }
           },
           {
             "is_short": true,
             "text": {
-              "content": "**🧩 Container:**\n{{or $alert.Labels.Container "None"}}",
+              "content": "**🧩 Container:**\n{{or $alert.labels.container "None"}}",
               "tag": "lark_md"
             }
           },
@@ -141,14 +141,14 @@
           {
             "is_short": true,
             "text": {
-              "content": "**📈 监控数据：**\n[generatorURL]({{ $alert.GeneratorURL }})",
+              "content": "**📈 监控数据：**\n[generatorURL]({{ $alert.generatorURL }})",
               "tag": "lark_md"
             }
           },
           {
             "is_short": true,
             "text": {
-              "content": "**📓 处理指引：**\n[runbooks]({{ $alert.Annotations.RunbookUrl }})",
+              "content": "**📓 处理指引：**\n[runbooks]({{ $alert.annotations.runbook_url }})",
               "tag": "lark_md"
             }
           },
@@ -162,7 +162,7 @@
           {
             "is_short": false,
             "text": {
-              "content": "**📋 摘要：**\n{{ $alert.Annotations.Summary }}",
+              "content": "**📋 摘要：**\n{{ $alert.annotations.summary }}",
               "tag": "lark_md"
             }
           },
@@ -176,7 +176,7 @@
           {
             "is_short": false,
             "text": {
-              "content": "**📋 详情：**\n{{or $alert.Annotations.Description $alert.Annotations.GrafanaValueString}}",
+              "content": "**📋 详情：**\n{{or $alert.annotations.description $alert.annotations.grafanaValueString}}",
               "tag": "lark_md"
             }
           }
