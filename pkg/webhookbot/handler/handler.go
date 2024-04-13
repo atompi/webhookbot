@@ -1,9 +1,7 @@
 package handler
 
 import (
-	"bytes"
 	"encoding/json"
-	"html/template"
 	"net/http"
 	"strings"
 
@@ -14,30 +12,14 @@ import (
 	"go.uber.org/zap"
 )
 
-func genPostJsonData(structData util.AlertsGroupStruct, tmplFilePath string) (jsonData string, err error) {
-	t, err := template.ParseFiles(tmplFilePath)
-	if err != nil {
-		zap.L().Sugar().Errorf("parse %s failed: %v", tmplFilePath, err)
-		return
-	}
-	buffer := new(bytes.Buffer)
-	err = t.Execute(buffer, structData)
-	if err != nil {
-		zap.L().Sugar().Errorf("generate json data failed: %v", err)
-		return
-	}
-	jsonData = buffer.String()
-	return
-}
-
 type Context struct {
 	GinContext *gin.Context
-	Options    options.CoreOptions
+	Options    options.BotOptions
 }
 
 type HandlerFunc func(*Context)
 
-func NewHandler(handler HandlerFunc, opts options.CoreOptions) gin.HandlerFunc {
+func NewBotHandler(handler HandlerFunc, opts options.BotOptions) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		context := new(Context)
 		context.GinContext = c
@@ -46,7 +28,7 @@ func NewHandler(handler HandlerFunc, opts options.CoreOptions) gin.HandlerFunc {
 	}
 }
 
-func Handler(c *Context) {
+func BotHandler(c *Context) {
 	bodyData := make(map[string]any)
 	err := c.GinContext.BindJSON(&bodyData)
 	if err != nil {
@@ -73,9 +55,9 @@ func Handler(c *Context) {
 
 	var postJsonData string
 	if alertGroupData.Status == "resolved" {
-		postJsonData, err = genPostJsonData(alertGroupData, c.Options.Bots.ResolvedMsgTmpl)
+		postJsonData, err = util.GenPostJsonData(alertGroupData, c.Options.Template.Resolved)
 	} else {
-		postJsonData, err = genPostJsonData(alertGroupData, c.Options.Bots.AlertMsgTmpl)
+		postJsonData, err = util.GenPostJsonData(alertGroupData, c.Options.Template.Alerting)
 	}
 	if err != nil {
 		zap.L().Sugar().Errorf("failed to generate json data: %v", err)
@@ -84,7 +66,7 @@ func Handler(c *Context) {
 	}
 
 	postData := strings.NewReader(postJsonData)
-	req, _ := http.NewRequest("POST", c.Options.Bots.WebhookUrl, postData)
+	req, _ := http.NewRequest("POST", c.Options.Webhook, postData)
 	req.Header.Add("content-type", "application/json")
 	res, err := http.DefaultClient.Do(req)
 	if err != nil || res.StatusCode >= http.StatusBadRequest {
@@ -99,8 +81,16 @@ func Handler(c *Context) {
 }
 
 func RootHandler(opts options.Options) gin.HandlerFunc {
-	botMap := make(map[string]string)
+	botList := []map[string]string{}
+	for _, bot := range opts.Bots {
+		botMap := map[string]string{
+			"name":    bot.Name,
+			"path":    bot.Path,
+			"webhook": bot.Webhook,
+		}
+		botList = append(botList, botMap)
+	}
 	return func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"bot_map": botMap})
+		c.JSON(http.StatusOK, gin.H{"bots": botList})
 	}
 }

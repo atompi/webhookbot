@@ -32,8 +32,9 @@ type TemplateOptions struct {
 }
 
 type BotOptions struct {
+	Name     string          `yaml:"name"`
 	Path     string          `yaml:"path"`
-	Webhook  string          `yaml:"webhookUrl"`
+	Webhook  string          `yaml:"webhook"`
 	Template TemplateOptions `yaml:"template"`
 }
 

@@ -1,5 +1,12 @@
 package util
 
+import (
+	"bytes"
+	"html/template"
+
+	"go.uber.org/zap"
+)
+
 type AlertLabelsStruct struct {
 	Alertname any `json:"alertname"`
 	Endpoint  any `json:"endpoint"`
@@ -34,4 +41,20 @@ type AlertsGroupStruct struct {
 	Status       any                `json:"status"`
 	Alerts       []AlertStruct      `json:"alerts"`
 	CommonLabels CommonLabelsStruct `json:"commonLabels"`
+}
+
+func GenPostJsonData(structData AlertsGroupStruct, tmplFilePath string) (jsonData string, err error) {
+	t, err := template.ParseFiles(tmplFilePath)
+	if err != nil {
+		zap.L().Sugar().Errorf("parse %s failed: %v", tmplFilePath, err)
+		return
+	}
+	buffer := new(bytes.Buffer)
+	err = t.Execute(buffer, structData)
+	if err != nil {
+		zap.L().Sugar().Errorf("generate json data failed: %v", err)
+		return
+	}
+	jsonData = buffer.String()
+	return
 }
