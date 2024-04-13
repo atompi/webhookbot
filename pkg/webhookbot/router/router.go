@@ -15,7 +15,7 @@ func MetricsRouter(routerGroup *gin.RouterGroup, opts options.Options) {
 
 func BotRouter(routerGroup *gin.RouterGroup, opts options.Options) {
 	botGroup := routerGroup.Group("bot")
-	routerGroup.GET("", handler.RootHandler(opts))
+	botGroup.GET("", handler.RootHandler(opts))
 	for _, bot := range opts.Bots {
 		botGroup.POST(bot.Path, handler.NewBotHandler(handler.BotHandler, bot))
 	}
