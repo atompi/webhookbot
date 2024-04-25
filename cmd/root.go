@@ -59,7 +59,8 @@ var rootCmd = &cobra.Command{
 
 		router.Register(r, opts)
 
-		r.Run(opts.Core.Listen)
+		err := r.Run(opts.Core.Listen)
+		cobra.CheckErr(err)
 	},
 }
 

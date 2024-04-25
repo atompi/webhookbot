@@ -10,7 +10,7 @@
           {
             "is_short": true,
             "text": {
-              "content": "**⚓ Namespace: **\n{{.commonLabels.namespace}}",
+              "content": "**⚓ Job: **\n{{.commonLabels.job}}",
               "tag": "lark_md"
             }
           },
@@ -43,7 +43,7 @@
           {
             "is_short": true,
             "text": {
-              "content": "**🚦 告警级别：**\n{{ $alert.labels.severity }}",
+              "content": "**🚦 告警级别：**\n{{ $alert.annotations.severity }}",
               "tag": "lark_md"
             }
           },
@@ -99,35 +99,14 @@
           {
             "is_short": true,
             "text": {
-              "content": "**🎯 监控端点：**\n{{or $alert.labels.endpoint "None"}}",
-              "tag": "lark_md"
-            }
-          },
-          {
-            "is_short": true,
-            "text": {
               "content": "**🚀 实例：**\n{{or $alert.labels.instance "None"}}",
               "tag": "lark_md"
             }
           },
           {
-            "is_short": false,
-            "text": {
-              "content": "",
-              "tag": "lark_md"
-            }
-          },
-          {
             "is_short": true,
             "text": {
-              "content": "**📦 Pod:**\n{{or $alert.labels.pod "None"}}",
-              "tag": "lark_md"
-            }
-          },
-          {
-            "is_short": true,
-            "text": {
-              "content": "**🧩 Container:**\n{{or $alert.labels.container "None"}}",
+              "content": "**📋 当前值：**\n{{ $alert.values.B }}",
               "tag": "lark_md"
             }
           },
@@ -162,21 +141,7 @@
           {
             "is_short": false,
             "text": {
-              "content": "**📋 摘要：**\n{{ $alert.annotations.summary }}",
-              "tag": "lark_md"
-            }
-          },
-          {
-            "is_short": false,
-            "text": {
-              "content": "",
-              "tag": "lark_md"
-            }
-          },
-          {
-            "is_short": false,
-            "text": {
-              "content": "**📋 详情：**\n{{or $alert.annotations.description $alert.annotations.grafanaValueString}}",
+              "content": "**📋 详情：**\n{{ $alert.valueString }}",
               "tag": "lark_md"
             }
           }
